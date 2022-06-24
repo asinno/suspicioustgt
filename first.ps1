@@ -14,6 +14,7 @@ $result2 = foreach($Line in $LIST | Select-String  -Pattern '(Start Time)|(End T
   $TimeMatches += $StartDateTime
   $TicketCount++
 }
+
 #Iterates through all times of all Tickets to detect tickets with expiration times greater than 10 hours
 $result = for($TicketCount -gt 0; $TimeCounter -lt $TicketCount; $TimeCounter+=2){
   $TimeDifference = New-TimeSpan $TimeMatches[$TimeCounter] $TimeMatches[$TimeCounter+1]
@@ -21,4 +22,8 @@ $result = for($TicketCount -gt 0; $TimeCounter -lt $TicketCount; $TimeCounter+=2
     #Creates object to store ticket and device properties to be sent over UDP or any other protocol the user would like.
 'This alert has detected a suspicious ticket on an endpoint. It works by checking if the expiration time of a ticket is greater than 10-hours. This typically indicates the presence of a golden ticket or silver ticket.';
       }else {'No suspicious TGT'}
-} $result + $result2 | Out-File $env:TEMP\tgt.txt
+} 
+
+$result3 = if($TicketCount -eq 0){'no tickets'}elseif($TicketCount -gt 0){'there was a ticket'}
+
+$result + $result2 + $result3 | Out-File $env:TEMP\tgt.txt
